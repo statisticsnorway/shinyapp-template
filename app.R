@@ -23,11 +23,7 @@ ui <- dashboardPage(dashboardHeader(title = "Hovedtittel", titleWidth = 250),
                                        menuItem("Hovedmeny2", tabName = "hovedmeny2",
                                                 menuSubItem("Hovedundermeny2-1", tabName = "hovedundermeny2-1"),
                                                 menuSubItem("Hovedundermeny2-2", tabName = "hovedundermeny2-2")
-                                       ),
-                                       
-                                       br(),
-                                       
-                                       menuItem("Hovedmeny3", tabName = "hovedmeny3")
+                                       )
                                        
                                      ),
                                      
@@ -94,7 +90,7 @@ ui <- dashboardPage(dashboardHeader(title = "Hovedtittel", titleWidth = 250),
                                   
                                   column(width = 12, wellPanel(
                                     
-                                    h2("Hovedside1-undertittel1"),
+                                    h2("Hovedside1-undertittel2"),
                                     
                                     # Grafoutput2
 
@@ -110,9 +106,9 @@ ui <- dashboardPage(dashboardHeader(title = "Hovedtittel", titleWidth = 250),
                                   
                                 )),
                         
-                        tabItem(tabName = "hovedmeny2",
+                        tabItem(tabName = "hovedundermeny2-1",
                                 br(),
-                                h1("Hovedside2-tittel"),
+                                h1("Hovedunderside2-1-tittel"),
                                 br(),
                                 
                                 fluidRow(
@@ -132,7 +128,7 @@ ui <- dashboardPage(dashboardHeader(title = "Hovedtittel", titleWidth = 250),
                                                                    "valg3",
                                                                    "valg4",
                                                                    "valg5"),
-                                                       selected = "valg1"))),
+                                                       selected = "valg1")))),
                                          # Grafoutput3
                                 br(),
                                 
@@ -145,16 +141,16 @@ ui <- dashboardPage(dashboardHeader(title = "Hovedtittel", titleWidth = 250),
                                 
                         ),
                         
-                        tabItem(tabName = "scatternar",
+                        tabItem(tabName = "hovedundermeny2-2",
                                 br(),
-                                h1("Samanlikning av næringar"),
+                                h1("Hovedunderside2-2-tittel"),
                                 br(),
                                 
                                 fluidRow(
                                   column(width = 12,
                                          br(),
-                                         h2("Tal for næringar hittil i år."),
-                                         helpText("Velg næringar under."),
+                                         h2("Hovedunderside2-2-undertittel1."),
+                                         helpText("Velg filter under."),
                                          br(),
                                          br())),
                                 
@@ -177,7 +173,7 @@ ui <- dashboardPage(dashboardHeader(title = "Hovedtittel", titleWidth = 250),
                                                                    "valg3",
                                                                    "valg4",
                                                                    "valg5"),
-                                                       selected = "valg1"))),
+                                                       selected = "valg1")))),
                                 
                                 fluidRow(
                                   
@@ -192,24 +188,24 @@ ui <- dashboardPage(dashboardHeader(title = "Hovedtittel", titleWidth = 250),
                                 
                                 fluidRow(
                                   
-                                  column(width = 9,
+                                  column(width = 3,
                                          wellPanel(
                                            
-                                           list(h3("Filtrer ut næring:"),
+                                           list(h3("Filtrer ut grupper:"),
                                                 tags$div(align = 'left',
                                                          class = 'multicol',
-                                                         prettyCheckboxGroup("naringsvalg", "",
-                                                              choices = c(levels(factor(konkurser_naring$Næring))[1:74]),
-                                                              selected = c(levels(factor(konkurser_naring$Næring))[1:74])
+                                                         prettyCheckboxGroup("gruppevalg", "",
+                                                              choices = c('gruppe1' , 'gruppe2', 'gruppe3'),
+                                                              selected = c('gruppe1' , 'gruppe2', 'gruppe3')
                                                               ))))),
                                   
                                   column(width = 2,
                                          wellPanel(
                                            
-                                           actionButton("checkall", label = "Velg alle næringar"),
+                                           actionButton("checkall", label = "Velg alle grupper"),
                                            br(),
                                            br(),
-                                           actionButton("uncheck", label = "Velg bort alle næringar"),
+                                           actionButton("uncheck", label = "Fjern alle markeringer"),
                                            br()
                                   
                                 ))),
@@ -224,44 +220,7 @@ ui <- dashboardPage(dashboardHeader(title = "Hovedtittel", titleWidth = 250),
                                                     href = "https://www.ssb.no/",
                                                     target = "blank"))))
                                 
-                        ),
-                        
-                        tabItem(tabName = "geografi",
-                                br(),
-                                h1("Geografisk fordeling"),
-                                br(),
-                                fluidRow(
-                                  
-                                  column(width = 3,
-                                         
-                                         prettyCheckbox("check_geo", label = "Hittil i år."),
-                                         
-                                         selectInput("varchoice_geo", "Velg variabel:", 
-                                                     choices = c("valg1", 
-                                                                 "valg2",
-                                                                 "valg3",
-                                                                 "valg4",
-                                                                 "valg5")),
-                                         
-                                         selectInput("varchoice_uke", "Velg uke:",
-                                                     choices = c(levels(factor(komoek2$uke)))[1:max(komoek2$uke)+1],
-                                                     selected = max(komoek2$uke)),
-                                         
-                                         br(),
-                                         
-                                         helpText(a("Fotnoter, eller annen tekst med link.",
-                                                    href = "https://www.ssb.no/",
-                                                    target = "blank"))
-                                         
-                                         ),
-                                  
-                                  column(width = 9,
-                                         
-                                         plotlyOutput("geografi",
-                                                      height = 1000, width = 1000))
-                                         
-                                  )
-                                )
+                        )
                         
                       ),
                       tags$head(
@@ -270,169 +229,56 @@ ui <- dashboardPage(dashboardHeader(title = "Hovedtittel", titleWidth = 250),
                     )
                     
 )
-))
+
 
 server <- function(input, output, session){
   
-  output$konkursidag <- renderValueBox({
-    valueBox(value = konk2020 %>%
-               dplyr::select(dato, Konkursar) %>%
-               filter(dato == Sys.Date()) %>% 
-               pull(Konkursar),
-             subtitle = paste("Konkursar ",
-                              as.character(format(as.Date(Sys.Date(), format = "%Y-%m-%d"), "%d. %h %Y"))),
+  
+  # For iconer sjekk ut hva som er tilgjengelig i Font Awesome og Glyphicons
+  # https://shiny.rstudio.com/reference/shiny/0.14/icon.html
+  # https://fontawesome.com/icons?from=io
+  
+  ### INFOBOKSER-OUTPUT ###
+  output$infobox1 <- renderValueBox({
+    valueBox(value = 1000,
+             subtitle = "Infobox1 undertekst ",
              icon = icon("star"), color = "green")
   })
   
-  output$meanoms <- renderValueBox({
-    valueBox(value = konk2020 %>%
-               dplyr::select(dato, `Omsetning (1 000 kr)`) %>%
-               filter(dato == Sys.Date()) %>% 
-               pull(`Omsetning (1 000 kr)`),
-             subtitle = paste("Omsetning (1000 kr) for konkursar ", 
-                              as.character(format(as.Date(Sys.Date(), format = "%Y-%m-%d"), "%d. %h %Y"))),
-             icon = icon("money-bill"), color = "green")
+  output$infobox2 <- renderValueBox({
+    valueBox(value = 2000,
+             subtitle = "Infobox2 undertekst ",
+             icon = icon("dice-six"), color = "green")
   })
   
-  output$meansyss <- renderValueBox({
-    valueBox(value = konk2020 %>%
-               dplyr::select(dato, `Tilsette`) %>%
-               filter(dato == Sys.Date()) %>% 
-               pull(`Tilsette`),
-             subtitle = paste("Tilsette for konkursar ",
-                              as.character(format(as.Date(Sys.Date(), format = "%Y-%m-%d"), "%d. %h %Y"))),
+  output$infobox3 <- renderValueBox({
+    valueBox(value = 3000,
+             subtitle = "Infobox3 undertekst ",
              icon = icon("user"), color = "green")
   })
   
-  output$konkurslinje_perdag <- renderPlotly({
-    
-    if(input$rollmean_dag != 0) {
-    
-    konk2020gg <- konk2020 %>%
-      rbind(konk2019) %>% # Setter sammen med data for 2019
-      filter(uke <= 52) %>%
-      mutate(datofilter = format(as.Date(dato, "%Y%m%d"), format = "%m-%d")) %>%
-      filter(datofilter <= format(as.Date(Sys.Date(), "%Y%m%d"), format = "%m-%d")) %>% 
-      mutate(datoplot = as.Date(datofilter, format = "%m-%d")) %>%
-      mutate(Dato = format(as.Date(datoplot, format = "%m-%d"), "%d. %h")) %>%
-      ggplot(aes(x = datoplot, y = Konkursar, group = År, Dato = Dato)) +  # Lager plot
-      geom_line(aes(color = År), size = 0.6) + 
-      scale_color_manual(values = c("#90cc93", "#00824d")) +
-      labs(x = "Måned", y = "Tal på konkursar") + 
-      theme_light() +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1))
-    
-    ggplotly(konk2020gg,
-             tooltip = c("Dato", "Konkursar")) %>%
-      layout(plot_bgcolor='transparent') %>% 
-      layout(paper_bgcolor='transparent')
-    
-    } else {
-      
-      konk2020gg <- konk2020 %>%
-        rbind(konk2019) %>% 
-        filter(uke <= 52) %>%
-        mutate(datofilter = format(as.Date(dato, "%Y%m%d"), format = "%m-%d")) %>%
-        filter(datofilter <= format(as.Date(Sys.Date(), "%Y%m%d"), format = "%m-%d")) %>% 
-        mutate(datoplot = as.Date(datofilter, format = "%m-%d")) %>%
-        mutate(Dato = format(as.Date(datoplot, format = "%m-%d"), "%d. %h")) %>%
-        group_by(År) %>%
-        mutate(Konkursar = round(zoo::rollapply(Konkursar, 7, mean, align='right', fill=NA), 2)) %>%
-        ungroup() %>%
-        ggplot(aes(x = datoplot, y = Konkursar, group = År, Dato = Dato)) +  
-        geom_line(aes(color = År), size = 0.6) + 
-        scale_color_manual(values = c("#90cc93", "#00824d")) +
-        labs(x = "Måned", y = "Tal på konkursar") + 
-        theme_light() +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1))
-      
-      ggplotly(konk2020gg,
-               tooltip = c("Dato", "Konkursar")) %>%
-        layout(plot_bgcolor='transparent') %>% 
-        layout(paper_bgcolor='transparent')
-      
-    }
-    
-  })
   
-  output$konkurslinje_akkumulert <- renderPlotly({
-    
-    konk2020akkgg <- konk2020akk %>%
-      rbind(konk2019akk) %>%
-      rename(Konkursar = n) %>%
-      ggplot(aes(x = datoplot, y = Konkursar, group = År, Dato = Dato)) + 
-      geom_line(aes(color = År), size = 0.6) + 
-      scale_color_manual(values = c("#90cc93", "#00824d")) + 
-      labs(x = "Måned", y = "Tal på konkursar") + 
-      theme_light() + 
-      theme(axis.text.x = element_text(angle = 90, hjust = 1))
-    
-    ggplotly(konk2020akkgg,
-             tooltip = c("Dato", "Konkursar")) %>%
-      layout(plot_bgcolor='transparent') %>% 
-      layout(paper_bgcolor='transparent')
-    
-  })
   
-  output$naeringsfordeling <- renderPlotly({
-      
-    konkurser_naring19 %>%
-        filter(var %in% as.character(input$varchoice_nar)) %>%
-        spread(År, Verdi) %>%
-        group_by(Næring) %>%
-        plot_ly(x =  ~as.numeric(`2020`),
-                name = "2020",
-                y =  ~reorder(Næring, `2020`),
-                type = "bar",
-                orientation = "h",
-                marker= list(color = c("#00824d")),
-                height = 1500, width = 1500) %>%
-        add_trace(x = ~as.numeric(`2019`), name = "2019",
-                  marker = list(color = c("#90cc93"))) %>%
-        layout(xaxis = list(title = as.character(input$varchoice_nar), side = "top",
-                            tickformat = "digit"),
-               yaxis = list(title = ""),
-               barmode = 'group',
-               plot_bgcolor='transparent',
-               paper_bgcolor='transparent')
-    
-  })
   
-  varinput2 <- reactive({
-    
-    konkurser_naring <- konkurser_naring %>%
-      spread(var, Verdi) %>%
-      filter(Næring %in% c(input$naringsvalg))
-    
-    switch(input$varchoice_nar2,
-           "Konkursar" = konkurser_naring$Konkursar,
-           "Omsetning (1 000 kr)" = konkurser_naring$`Omsetning (1 000 kr)`,
-           "Tilsette" = konkurser_naring$Tilsette,
-           "Eksportverdi (1 000 kr)" = konkurser_naring$`Eksportverdi (1 000 kr)`,
-           "Importverdi (1 000 kr)" = konkurser_naring$`Importverdi (1 000 kr)`)
-    
-  })
+  ### Graphoutputs ###
+  # Feks ggplot eller plotly
   
-  varinput3 <- reactive({
-    
-    konkurser_naring <- konkurser_naring %>%
-      spread(var, Verdi) %>%
-      filter(Næring %in% c(input$naringsvalg))
-    
-    switch(input$varchoice_nar3,
-           "Konkursar" = konkurser_naring$Konkursar,
-           "Omsetning (1 000 kr)" = konkurser_naring$`Omsetning (1 000 kr)`,
-           "Tilsette" = konkurser_naring$Tilsette,
-           "Eksportverdi (1 000 kr)" = konkurser_naring$`Eksportverdi (1 000 kr)`,
-           "Importverdi (1 000 kr)" = konkurser_naring$`Importverdi (1 000 kr)`)
-    
-  })
   
+  
+  
+  ### Inputreactions ###
+  
+  
+  
+
+  
+  
+  ### Observe-callbacks ###
   observe({
     if (input$uncheck > 0) {
       updatePrettyCheckboxGroup(session = session,
-                                "naringsvalg",
-                                choices = c(levels(factor(konkurser_naring$Næring))[1:74]),
+                                "gruppevalg",
+                                choices = c('gruppe1' , 'gruppe2', 'gruppe3'),
                                 selected = NULL)
     }
     
@@ -441,88 +287,12 @@ server <- function(input, output, session){
   observe({
     if (input$checkall > 0) {
       updatePrettyCheckboxGroup(session = session,
-                                "naringsvalg",
-                                choices = c(levels(factor(konkurser_naring$Næring))[1:74]),
-                                selected = c(levels(factor(konkurser_naring$Næring))[1:74]))
+                                "gruppevalg",
+                                choices = c('gruppe1' , 'gruppe2', 'gruppe3'),
+                                selected = c('gruppe1' , 'gruppe2', 'gruppe3'))
     }
     
   })
-  
-  output$scatternaering <- renderPlotly({
-    
-    scatter <- konkurser_naring %>%
-      spread(var, Verdi) %>%
-      filter(Næring %in% c(input$naringsvalg)) %>%
-      ggplot(aes(as.integer(round(varinput2(), 0)), round(as.integer(varinput3(), 0)),
-                 Næring = Næring, Konkursar = Konkursar, Tilsette = Tilsette,
-                 `Eksportverdi (1 000 kr)` = `Eksportverdi (1 000 kr)`,
-                 `Importverdi (1 000 kr)` = `Importverdi (1 000 kr)`, `Omsetning (1 000 kr)` = `Omsetning (1 000 kr)`,
-                 label = c(input$naringsvalg), 
-                 color = c(input$naringsvalg))) + 
-      geom_point(aes(color = c(input$naringsvalg)), 
-                 size = 3, alpha = 0.6) + 
-      scale_color_manual(values = rep(c("#90cc93", "#1a9d49", "#00824d", "#075745",
-                                        "#a2baba", "#6f9090", "#4b7272", "#274247"), 12)) +
-      labs(color = "Næring",
-           x = paste(as.character(input$varchoice_nar2)), 
-           y = paste(as.character(input$varchoice_nar3))) +
-      theme_light() +
-      theme(plot.background = element_rect(fill = "#90cc93"),
-            legend.position = "right")
-    
-    ggplotly(scatter, 
-             tooltip = c("Næring", "Konkursar", "Tilsette", "Eksportverdi (1 000 kr)", 
-                         "Importverdi (1 000 kr)", "Omsetning (1 000 kr)"),
-             height = 800, width = 1500) %>%
-      layout(plot_bgcolor='transparent') %>% 
-      layout(paper_bgcolor='transparent') %>%
-      htmlwidgets::onRender("function(el,x){el.on('plotly_legendclick', function(){ return false; })}")
-
-    
-  }) 
-  
-  observe({
-    if (input$check_geo == 1) {
-      updateSelectInput(session = session,
-                        "varchoice_uke",
-                        choices = c(levels(factor(komoek2$uke)))[1:max(komoek2$uke)+1],
-                        selected = c(levels(factor((komoek2$uke))))["Total"])
-    }
-    
-  })
-  
-  output$geografi <- renderPlotly({
-    
-    if(input$check_geo != 1) {
-      
-      ggplotly(komoek2 %>% 
-                 filter(uke %in% c(0, input$varchoice_uke)) %>%
-                 filter(var %in% as.character(input$varchoice_geo)) %>%
-                 ggplot() +
-                 geom_sf(aes(geometry = geometry, fill = Verdi, group = Region), size = 0.1) + 
-                 theme_void() + 
-                 scale_fill_gradientn(colors = c("white", "#a2baba", "#6f9090", "#4b7272", "#274247")) +
-                 theme(legend.position = "none"),
-               height = 1000, width = 1000) %>%
-        layout(plot_bgcolor='transparent') %>% 
-        layout(paper_bgcolor='transparent')
-      
-    } else {
-        
-        ggplotly(komoek1 %>%
-                   filter(var %in% as.character(input$varchoice_geo)) %>%
-                   ggplot() +
-                   geom_sf(aes(geometry = geometry, fill = Verdi, group = Region), size = 0.1) + 
-                   theme_void() + 
-                   scale_fill_gradientn(colors = c("white", "#a2baba", "#6f9090", "#4b7272", "#274247")) +
-                   theme(legend.position = "none"),
-                 height = 1000, width = 1000) %>%
-        layout(plot_bgcolor='transparent') %>% 
-        layout(paper_bgcolor='transparent')
-      
-    }
-    
-    }) 
     
 
 }
