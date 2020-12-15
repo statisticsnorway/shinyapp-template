@@ -185,9 +185,8 @@ ui <- dashboardPage(dashboardHeader(title = "Hovedtittel", titleWidth = 250),
                                   
                                   column(width = 11,
                                          
-                                         plotlyOutput("scatternaering",
-                                                      inline = TRUE,
-                                                      height = 800, width = 1500))),
+                                         #Grafoutput 4
+                                         )),
                                 
                                 br(),
                                 
